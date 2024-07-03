@@ -1,0 +1,20 @@
+[project]
+name = "ayc-bot"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "jeff", email = "jeffpeng2012@gmail.com" }
+]
+dependencies = [
+    "aiohttp",
+    "google-generativeai",
+    "py-cord[speed,voice]",
+    "setuptools",
+]
+readme = "README.md"
+requires-python = ">= 3.12"
+
+[tool.rye]
+managed = true
+virtual = true
+dev-dependencies = []

@@ -1,6 +1,6 @@
 services:
   bot:
-    image: image
+    image: ghcr.io/jeffpeng3/ayc-bot:master
     environment:
       REACTION_WEBHOOK: https://discord.com/api/webhooks/<channel ID>/<token>
       TEXT_WEBHOOK: https://discord.com/api/webhooks/<channel ID>/<token>

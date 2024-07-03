@@ -6,17 +6,15 @@ from discord import (
 )
 from discord.ext.commands import Cog
 from time import time_ns
-from os import getenv
 
 class auto_mod(Cog):
     def __init__(self, bot: Bot):
         self.bot: Bot = bot
-        self.entry_point = int(getenv("ENTRY_POINT",'0'))
 
     @Cog.listener("on_voice_state_update")
     async def on_voice(self, member: Member, before:VoiceState, after:VoiceState):
         s = "↑↓←→"
-        entry_point = self.entry_point
+        entry_point = 1153635272840458270
         if entry_point == 0:
             return
         if after.channel and after.channel.id == entry_point:
