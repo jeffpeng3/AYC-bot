@@ -1,0 +1,12 @@
+services:
+  bot:
+    image: image
+    environment:
+      REACTION_WEBHOOK: https://discord.com/api/webhooks/<channel ID>/<token>
+      TEXT_WEBHOOK: https://discord.com/api/webhooks/<channel ID>/<token>
+      VOICE_WEBHOOK: https://discord.com/api/webhooks/<channel ID>/<token>
+      COMMAND_WEBHOOK: https://discord.com/api/webhooks/<channel ID>/<token>
+      LEWD_WEBHOOK: https://discord.com/api/webhooks/<channel ID>/<token>
+      GOOGLE_API_KEY: 
+      DISCORD_TOKEN: 
+      UA: ""

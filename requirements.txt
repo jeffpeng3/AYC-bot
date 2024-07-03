@@ -1,0 +1,6 @@
+py-cord[speed,voice]
+# yt_dlp
+# mafic
+aiohttp
+setuptools
+google-generativeai
