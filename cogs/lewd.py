@@ -192,6 +192,8 @@ class lewd(Cog):
         guild_ids=[879748390290853918, 624590181298601985],
     )
     async def lewd_pic(self, ctx: ApplicationContext):
+        await ctx.respond("不可以色色！")
+        return
         if ctx.channel_id != 1107999740408385646 and ctx.user.id != 551024169442344970:
             await ctx.respond("大庭廣眾之下還想偷色色阿", delete_after=30)
             return
