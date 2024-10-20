@@ -7,6 +7,7 @@ from discord import (
     VoiceChannel,
     option,
     slash_command,
+    InteractionContextType
 )
 from discord.ext.commands import Cog
 
@@ -19,7 +20,7 @@ class slh_command(Cog):
         name="snowball",
         description="立訓又吃到雪球了😭",
         guild_ids=[624590181298601985],
-        guild_only=True,
+        contexts=InteractionContextType.guild,
     )
     async def snowBall(self, ctx: ApplicationContext, cnt: int = 1):
         channel: VoiceChannel = self.bot.get_channel(883718467562401812)  # type: ignore
