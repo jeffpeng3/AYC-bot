@@ -107,7 +107,7 @@ async def list_loaded_cog(ctx: AutocompleteContext) -> list[str]:
 @bot.slash_command(
     name="load",
     guild_ids=[879748390290853918],
-    contexts=InteractionContextType.guild,
+    # contexts=InteractionContextType.guild,
     description="載入模組",
 )
 @option(
@@ -127,7 +127,7 @@ async def load(ctx: ApplicationContext, extension: str):
 @bot.slash_command(
     name="sync",
     guild_ids=[879748390290853918],
-    contexts=InteractionContextType.guild,
+    # contexts=InteractionContextType.guild,
     description="同步指令",
 )
 @default_permissions(administrator=True)
@@ -141,7 +141,7 @@ async def sync(ctx: ApplicationContext):
 @bot.slash_command(
     name="unload",
     guild_ids=[879748390290853918],
-    contexts=InteractionContextType.guild,
+    # contexts=InteractionContextType.guild,
     description="卸載模組",
 )
 @option(
@@ -161,7 +161,7 @@ async def unload(ctx: ApplicationContext, extension: str):
 @bot.slash_command(
     name="reload",
     guild_ids=[879748390290853918],
-    contexts=InteractionContextType.guild,
+    # contexts=InteractionContextType.guild,
     description="重新載入模組",
 )
 @option(

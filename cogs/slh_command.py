@@ -20,7 +20,7 @@ class slh_command(Cog):
         name="snowball",
         description="立訓又吃到雪球了😭",
         guild_ids=[624590181298601985],
-        contexts=InteractionContextType.guild,
+        # contexts=InteractionContextType.guild,
     )
     async def snowBall(self, ctx: ApplicationContext, cnt: int = 1):
         channel: VoiceChannel = self.bot.get_channel(883718467562401812)  # type: ignore
