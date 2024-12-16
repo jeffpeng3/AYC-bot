@@ -11,7 +11,7 @@ class llm(Cog):
         self.bot: Bot = bot
         self.chats: dict[int, llm_message] = {}
         self.model = genai.GenerativeModel(
-            "gemini-1.5-flash-latest",
+            "models/gemini-1.5-flash",
             safety_settings=(
                 {
                     "category": HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -62,7 +62,8 @@ class llm(Cog):
                 try:
                     self.append_message(thread.id, "user", msg)
                     result = await self.model.generate_content_async(
-                        self.chats[thread.id]
+                        self.chats[thread.id],
+                        tools={"google_search_retrieval": {},"code_execution": {}},
                     )
                     self.append_message(thread.id, "model", result.text)
                     await thread.send(result.text)
@@ -97,7 +98,8 @@ class llm(Cog):
                     msg = message.content.split(maxsplit=1)[-1]
                     self.append_message(thread.id, "user", msg)
                     result = await self.model.generate_content_async(
-                        self.chats[thread.id]
+                        self.chats[thread.id],
+                        tools={"google_search_retrieval": {},"code_execution": {}},
                     )
                     self.append_message(thread.id, "model", result.text)
                     await thread.send(result.text)

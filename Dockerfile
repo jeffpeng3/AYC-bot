@@ -10,6 +10,6 @@ COPY . /app
 WORKDIR /app
 
 # update PATH environment variable
-ENV PATH=/home/app/.local/bin:$PATH
+ENV PATH=/root/.local/bin:$PATH
 
 CMD ["python", "-u", "bot.py"]
