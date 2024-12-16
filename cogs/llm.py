@@ -63,7 +63,7 @@ class llm(Cog):
                     self.append_message(thread.id, "user", msg)
                     result = await self.model.generate_content_async(
                         self.chats[thread.id],
-                        tools={"google_search_retrieval": {},"code_execution": {}},
+                        tools={"google_search_retrieval": {}}, # ,"code_execution": {}
                     )
                     self.append_message(thread.id, "model", result.text)
                     await thread.send(result.text)
@@ -99,7 +99,7 @@ class llm(Cog):
                     self.append_message(thread.id, "user", msg)
                     result = await self.model.generate_content_async(
                         self.chats[thread.id],
-                        tools={"google_search_retrieval": {},"code_execution": {}},
+                        tools={"google_search_retrieval": {}}, # ,"code_execution": {}
                     )
                     self.append_message(thread.id, "model", result.text)
                     await thread.send(result.text)
