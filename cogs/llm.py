@@ -103,10 +103,9 @@ class llm(Cog):
                     else:
                         history.append(ContentDict(role="user", parts=[i.content]))
                 self.chats[thread.id] = self.model.start_chat(history=history)
-
             with thread.typing():
                 try:
-                    result = await self.chats[thread.id].send_message_async(msg)
+                    result = await self.chats[thread.id].send_message_async(message.content)
                     await thread.send(result.text)
                 except Exception as e:
                     await thread.send(str(e))
