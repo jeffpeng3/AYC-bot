@@ -111,7 +111,7 @@ class llm(Cog):
             thread = message.channel
             if message.content.startswith("*"):
                 return
-            if thread.id not in self.chats:
+            if (chat := self.chats.get(thread.id,None)) is None:
                 msg = thread.starting_message
                 if not msg:
                     msg = self.bot.get_message(thread.id)
