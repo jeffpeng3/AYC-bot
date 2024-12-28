@@ -1,10 +1,7 @@
 from discord import (
     ApplicationContext,
     Embed,
-    Member,
     Bot,
-    User,
-    VoiceChannel,
     option,
     OptionChoice,
     slash_command,
@@ -20,12 +17,12 @@ class cf_command(Cog):
         self.cf = AsyncCloudflare()
         self.domain = getenv("DOMAIN")
 
-    @slash_command(name="addRecord", description="新增DNS紀錄")
-    @option(name="serviceType", type=str, choices=[OptionChoice("minecraft", "_minecraft")])
+    @slash_command(name="add_record", description="新增DNS紀錄")
+    @option(name="service_type", type=str, choices=[OptionChoice("minecraft", "_minecraft")])
     @option(name="name", type=str, description="名稱, <name>.<domain>")
     @option(name="port", type=int, description="port", min_value=20000, max_value=30000)
-    async def addRecord(self, ctx: ApplicationContext, serviceType: str, name: str, port: int):
-        srv_name = f"{serviceType}._tcp.{name}.sub"
+    async def addRecord(self, ctx: ApplicationContext, service_type: str, name: str, port: int):
+        srv_name = f"{service_type}._tcp.{name}.sub"
         embed = Embed(title="正在新增DNS紀錄...", description=f"目標位置: {srv_name}", color=0xFFFF00)
         await ctx.respond(embed=embed)
 
@@ -39,7 +36,7 @@ class cf_command(Cog):
             dest_ip = f"sub.{self.domain}"
             data = SRVRecordData(
                 name=name,
-                service=serviceType,
+                service=service_type,
                 protocol="_tcp",
                 priority=0,
                 weight=0,
