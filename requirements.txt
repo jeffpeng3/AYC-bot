@@ -4,3 +4,4 @@ py-cord[speed,voice]
 aiohttp
 setuptools
 google-generativeai
+cloudflare

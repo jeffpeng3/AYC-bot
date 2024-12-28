@@ -9,7 +9,6 @@ from discord import (
     AutocompleteContext,
     User,
     default_permissions,
-    InteractionContextType
 )
 from asyncio import Event
 from discord import Bot as _Bot

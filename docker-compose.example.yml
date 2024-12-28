@@ -6,7 +6,9 @@ services:
       TEXT_WEBHOOK: https://discord.com/api/webhooks/<channel ID>/<token>
       VOICE_WEBHOOK: https://discord.com/api/webhooks/<channel ID>/<token>
       COMMAND_WEBHOOK: https://discord.com/api/webhooks/<channel ID>/<token>
-      LEWD_WEBHOOK: https://discord.com/api/webhooks/<channel ID>/<token>
+      # LEWD_WEBHOOK: https://discord.com/api/webhooks/<channel ID>/<token>
+      CLOUDFLARE_API_TOKEN:
       GOOGLE_API_KEY: 
       DISCORD_TOKEN: 
+      DOMAIN:
       UA: ""
