@@ -28,9 +28,8 @@ class cf_command(Cog):
 
         try:
             zones = await self.cf.zones.list(name=self.domain)
-            print(zones.result[0].id)
             if len(zones.result) == 0:
-                print(f"找不到網域 {self.domain}")
+                raise Exception(f"找不到網域 {self.domain}")
                 return False
             zone_id = zones.result[0].id
             dest_ip = f"sub.{self.domain}"
