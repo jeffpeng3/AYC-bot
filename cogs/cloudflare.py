@@ -17,7 +17,7 @@ class cf_command(Cog):
         self.cf = AsyncCloudflare()
         self.domain = getenv("DOMAIN")
 
-    @slash_command(name="add_record", description="新增DNS紀錄")
+    @slash_command(name="add_record", description="新增DNS紀錄",guild_ids=[624590181298601985])
     @option(name="service_type", type=str, choices=[OptionChoice("minecraft", "_minecraft")])
     @option(name="name", type=str, description="名稱, <name>.<domain>")
     @option(name="port", type=int, description="port", min_value=20000, max_value=30000)

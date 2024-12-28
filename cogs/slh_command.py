@@ -7,7 +7,6 @@ from discord import (
     VoiceChannel,
     option,
     slash_command,
-    InteractionContextType
 )
 from discord.ext.commands import Cog
 
