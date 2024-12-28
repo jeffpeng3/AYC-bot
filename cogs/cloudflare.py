@@ -23,7 +23,7 @@ class cf_command(Cog):
     @option(name="port", type=int, description="port", min_value=20000, max_value=30000)
     async def addRecord(self, ctx: ApplicationContext, service_type: str, name: str, port: int):
         srv_name = f"{service_type}._tcp.{name}.sub"
-        embed = Embed(title="正在新增DNS紀錄...", description=f"目標位置: {srv_name}", color=0xFFFF00)
+        embed = Embed(title="正在新增DNS紀錄...", description=f"網域: {name}.sub.{self.domain}\n指向: sub.{self.domain}:{port}", color=0xFFFF00)
         await ctx.respond(embed=embed)
 
         try:
@@ -46,9 +46,10 @@ class cf_command(Cog):
             await self.cf.dns.records.create(
                 zone_id=zone_id, type="SRV", name=srv_name, data=data, ttl=1
             )
-            embed = Embed(title="新增DNS紀錄成功", description=f"目標位置: {srv_name}",color=0x00FF00)
+            embed = Embed(title="新增DNS紀錄成功", description=f"網域: {name}.sub.{self.domain}\n指向: sub.{self.domain}:{port}", color=0x00FF00)
+
         except Exception as e:
-            embed = Embed(title="新增DNS紀錄失敗", description=f"目標位置: {srv_name}\n錯誤訊息: {e}",color=0xFF0000)
+            embed = Embed(title="新增DNS紀錄失敗", description=f"網域: {name}.sub.{self.domain}\n指向: sub.{self.domain}:{port}\n錯誤訊息: {e}",color=0xFF0000)
         await ctx.edit(embed=embed)
 
 
