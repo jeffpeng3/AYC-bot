@@ -12,6 +12,7 @@ from discord import (
 )
 from discord.abc import GuildChannel
 from aiohttp import ClientSession
+from core.shared import get_client
 from discord.ext.commands import Cog
 
 
@@ -23,7 +24,7 @@ class command_logger(Cog):
         create_task(self.initial_variable())
 
     async def initial_variable(self):
-        self.session = ClientSession()
+        self.session = await get_client()
         self.webhook = Webhook.from_url(
             getenv("COMMAND_WEBHOOK", ""), session=self.session
         )
