@@ -10,8 +10,10 @@ from discord import (
     User,
     default_permissions,
 )
-from asyncio import Event
+from asyncio import Event, get_event_loop
 from discord import Bot as _Bot
+
+from core.shared import close_client
 # import mafic
 
 
@@ -180,7 +182,10 @@ if __name__ == "__main__":
 
     init_once.clear()
     token = getenv("DISCORD_TOKEN")
-    if token:
-        bot.run(token)
-    else:
-        raise ValueError("token not found.")
+    try:
+        if token:
+            bot.run(token)
+        else:
+            raise ValueError("token not found.")
+    finally:
+        get_event_loop().run_until_complete(close_client())

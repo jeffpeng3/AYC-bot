@@ -14,3 +14,4 @@ async def close_client():
     global client
     if client:
         await client.close()
+        client = None
