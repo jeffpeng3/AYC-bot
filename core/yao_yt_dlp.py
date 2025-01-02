@@ -1,10 +1,10 @@
 from itertools import islice
 from typing import AsyncIterator
 from discord import Member
-import yt_dlp
+import yt_dlp # type: ignore
 import asyncio
 
-from model.music_model import Song_Info
+from model.music_model import Song_Info # type: ignore
 
 
 class Music_Info_Extrector:

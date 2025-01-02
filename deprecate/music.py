@@ -20,9 +20,9 @@ from discord.channel import VocalGuildChannel
 from discord.abc import Connectable, GuildChannel
 from discord.ui import View, button, Button, Modal, InputText
 from discord.colour import Colour
-from model.music_model import LoopMode, Song
-from mafic import Player as _Player
-from mafic import TrackStartEvent, TrackEndEvent, TrackStuckEvent, TrackExceptionEvent
+from model.music_model import LoopMode, Song # type: ignore
+from mafic import Player as _Player # type: ignore
+from mafic import TrackStartEvent, TrackEndEvent, TrackStuckEvent, TrackExceptionEvent # type: ignore
 from core.yao_yt_dlp import Music_Info_Extrector
 from random import randint
 from json import load, dump
