@@ -10,7 +10,7 @@ from discord import (
     User,
     default_permissions,
 )
-from asyncio import Event, get_event_loop
+from asyncio import Event, new_event_loop
 from discord import Bot as _Bot
 
 from core.shared import close_client
@@ -188,4 +188,4 @@ if __name__ == "__main__":
         else:
             raise ValueError("token not found.")
     finally:
-        get_event_loop().run_until_complete(close_client())
+        new_event_loop().run_until_complete(close_client())
