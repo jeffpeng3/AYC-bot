@@ -15,7 +15,7 @@ class cf_command(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot: Bot = bot
         self.cf = AsyncCloudflare()
-        self.domain = getenv("DOMAIN")
+        self.domain = getenv("DOMAIN", "")
 
     @slash_command(name="add_record", description="新增DNS紀錄",guild_ids=[624590181298601985])
     @option(name="service_type", type=str, choices=[OptionChoice("minecraft", "_minecraft")])
@@ -34,9 +34,6 @@ class cf_command(Cog):
             zone_id = zones.result[0].id
             dest_ip = f"sub.{self.domain}"
             data = SRVRecordData(
-                name=name,
-                service=service_type,
-                protocol="_tcp",
                 priority=0,
                 weight=0,
                 port=int(port),
