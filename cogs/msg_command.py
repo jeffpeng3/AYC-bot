@@ -11,14 +11,14 @@ from discord.ext.commands import Cog
 from core.emoji_list import Emoji
 from discord.ui.modal import Modal
 from discord.ui.input_text import InputText
-import google.generativeai as genai
+from  google.generativeai.generative_models import GenerativeModel
 from google.ai.generativelanguage import HarmCategory, SafetySetting
 
 
 class msg_command(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot: Bot = bot
-        self.model = genai.GenerativeModel(
+        self.model = GenerativeModel(
             "gemini-pro",
             safety_settings=(
                 {
