@@ -123,6 +123,10 @@ class msg_command(Cog):
         modal.callback = lambda interaction: callback(modal, interaction)
         await ctx.interaction.response.send_modal(modal)
 
+    @message_command(name="quote")
+    async def quote(self, ctx: ApplicationContext, message: Message):
+        await ctx.respond(f"> {message.content}", ephemeral=True)
+
 
 def setup(bot: Bot):
     bot.add_cog(msg_command(bot))
