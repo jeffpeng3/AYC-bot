@@ -6,3 +6,4 @@ setuptools
 google-generativeai
 cloudflare
 pilmoji
+cjk_textwrap

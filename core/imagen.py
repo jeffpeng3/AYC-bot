@@ -1,144 +1,114 @@
+import math
+from io import BytesIO
 from pilmoji import Pilmoji
-from PIL import Image, ImageFont
+from PIL import Image, ImageDraw, ImageFont
+from PIL.Image import Image as img
 
+# from core.shared import get_client
+from asyncio import run
 
-my_string = '''
-Hello, world! 👋 Here are some emojis: 🎨 🌊 😎
+my_string = """
+肏你媽, world! 👋 Here are some emojis: 🎨 🌊 😎
 I also support Discord emoji: <:rooThink:596576798351949847>
-'''
+"""
+FONT_WIDTH = 20
+SMALL_FONT_WIDTH = 13
+MAX_LINES = 3
 
-with Image.new('RGB', (550, 80), (255, 255, 255)) as image:
-    font = ImageFont.truetype('arial.ttf', 24)
-
-    with Pilmoji(image) as pilmoji:
-        pilmoji.text((10, 10), my_string.strip(), (0, 0, 0), font)
-
-    image.show()
+font = ImageFont.truetype("NotoSans.ttf", 24)
 
 
-# import requests
-# from io import BytesIO
-# import os
-# from pilmoji import Pilmoji
-# from pilmoji.source import MicrosoftEmojiSource
-# from PIL import Image, ImageDraw, ImageFont
-# from time import localtime, strftime, time
-# import math
-# import cjk_textwrap
-
-# from miaq.plugins.reply import Reply
+def wrap_text(text: str, width: int) -> list:
+    text = text.replace("\r\n", "\n")
+    lines = []
+    for line in text.split("\n"):
+        lines.extend(wrap(line, width))
+    return lines
 
 
-# AVATAR_URL = "http://q1.qlogo.cn/g?b=qq&nk={}&s=640"
-# LOCAL_AVATAR_URL = "./tmp/{}.jpg"
-# FINAL_IMAGE_URL = "./tmp/{}-final.jpg"
-# FONT_WIDTH = 20
-# SMALL_FONT_WIDTH = 13
-# MAX_LINES = 3
-# font = ImageFont.truetype("SourceHanSansCN-Medium.otf", FONT_WIDTH, encoding="unic")
-# font_small = ImageFont.truetype("SourceHanSansCN-Bold.otf", SMALL_FONT_WIDTH, encoding="unic")
 
 
-# def _save_avatar(user_id: int) -> str:
-#     """
-#     获取用户头像
-#     """
-#     save_url = LOCAL_AVATAR_URL.format(user_id)
-#     # check local cache
-#     if os.path.exists(save_url):
-#         # if within 24 hours, return local cache
-#         if time() - os.path.getmtime(save_url) < 24 * 60 * 60:
-#             return save_url
-#     r = requests.get(AVATAR_URL.format(user_id))
-#     if r.status_code != 200:
-#         return None
-#     with open(save_url, "wb") as f:
-#         f.write(r.content)
-#     return save_url
+async def get_image(url: str) -> img:
+    # client = await get_client()
+    # async with client.get(url) as image:
+    #     return Image.open(BytesIO(await image.read()))
+    # with open("img.png", "rb") as f:
+    return Image.open("img.png")
+
+def smooth01(x: float) -> float:
+    return math.sin(x * math.pi - math.pi / 2) / 2 + 0.5
 
 
-# # smooth interpolate between 0 and 1
-# def smooth01(x: float) -> float:
-#     return math.sin(x * math.pi - math.pi / 2) / 2 + 0.5
+def alpha_gradient(image: img, x_s: int, x_e: int) -> img:
+    image = image.convert("RGBA")
+    w, h = image.size
+    img = Image.new("L", (w, h), 255)
+    for x in range(x_s, x_e + 1):
+        alpha = 255 - int(smooth01((x - x_s) / (x_e - x_s)) * 255)
+        tmp_img = Image.new("L", (1, h), alpha)
+        img.paste(tmp_img, (x, 0))
+
+    image.putalpha(img)
+
+    return image
 
 
-# # alpha gradient
-# def alpha_gradient(image: Image, x_s: int, x_e: int) -> Image:
-#     image = image.convert('RGBA')
-#     w, h = image.size
-#     img = Image.new('L', (w, h), 255)
-#     for x in range(x_s, x_e + 1):
-#         alpha = 255-int(smooth01((x - x_s)/(x_e - x_s)) * 255)
-#         tmp_img = Image.new('L', (1, h), alpha)
-#         img.paste(tmp_img, (x, 0))
+async def generate_image(text: str, background: tuple, avatar_url: str) -> BytesIO:
+    with Image.new("RGB", (1920, 1080), background) as image:
+        with Pilmoji(image) as pilmoji:
+            pilmoji.text((1000, 500), text, (0, 0, 0), font, align="center")
 
-#     image.putalpha(img)
+            avatar = await get_image(avatar_url)
 
-#     return image
+            avatar = avatar.resize((1080, 1080))
+            avatar = avatar.crop((324, 0, 1080, 1920))
+
+            avatar = alpha_gradient(avatar, 540, 756)
+            image.paste(avatar, (0, 0), avatar)
+
+            text_wrapped = wrap_text(text, 18)
+            y_min = 23
+            y_max = 120
+            # center vertically
+            y_start = (y_max - y_min) / 2 - min(
+                len(text_wrapped), MAX_LINES
+            ) * FONT_WIDTH / 2
+            y = int(y_start)
+            x_start = 165
+            x_end = 560
+            i = 1
+            if len(text_wrapped) > MAX_LINES:
+                text_wrapped[MAX_LINES - 1] = text_wrapped[3][:-3] + "..."
+            for line in text_wrapped:
+                text_size = font.getlength(line)
+                # center the text
+                print(text_size)
+                x = int(x_start + (x_end - x_start - text_size) / 2)
+                pilmoji.text(
+                    (x, y), line, font=font, fill=(0, 0, 0), embedded_color=True
+                )
+                y += FONT_WIDTH
+                i += 1
+            # left to right alpha gradient
+            # draw avatar on the left
+            # draw = ImageDraw.Draw(image)
+
+            # x_center = 403
+            # center user card
+            # card_size = font_small.getsize("@"+reply.user_card)
+            # x_card_start = x_center - card_size[0] / 2
+            # draw.text((x_card_start, 95), "@"+reply.user_card, font=font_small, fill=(169, 172, 184, 255))
+
+            # fmt_time = strftime("%Y年%m月%d日 %H点%M分", localtime(reply.time))
+            # time_size = font_small.getsize(fmt_time)
+            # x_time_start = x_center - time_size[0] / 2
+            # draw.text((x_time_start, 115), fmt_time, font=font_small, fill=(169, 172, 184, 255))
+
+        image.show()
+        image_bytes = BytesIO()
+        image.save(image_bytes, format="JPEG")
+        image_bytes.seek(0)
+        return image_bytes
 
 
-# def wrap_text(text: str, width: int) -> list:
-#     """
-#     先将文本根据\r\n换行再分词换行
-#     """
-#     text = text.replace("\r\n", "\n")
-#     lines = []
-#     for line in text.split("\n"):
-#         lines.extend(cjk_textwrap.wrap(line, width))
-#     return lines
-
-
-# def generate(reply: Reply, dump_to='') -> BytesIO:
-#     """
-#     生成图片
-#     """
-#     avatar_url = _save_avatar(reply.user_id)
-#     if avatar_url is None:
-#         raise Exception("avatar not found")
-#     image = Image.new('RGBA', (560, 150), (0, 0, 0, 255))
-#     # draw text on the right
-#     text_wrapped = wrap_text(reply.message, 18)
-#     y_min = 23
-#     y_max = 120
-#     # center vertically
-#     y_start = (y_max - y_min) / 2 - min(len(text_wrapped), MAX_LINES) * FONT_WIDTH / 2
-#     y = int(y_start)
-#     x_start = 165
-#     x_end = 560
-#     i = 1
-#     if len(text_wrapped) > MAX_LINES:
-#         text_wrapped[MAX_LINES - 1] = text_wrapped[3][:-3] + "..."
-#     for line in text_wrapped:
-#         text_size = font.getsize(line)
-#         # center the text
-#         x = int(x_start + (x_end - x_start - text_size[0]) / 2)
-#         with Pilmoji(image, source=MicrosoftEmojiSource) as pilomoji:
-#             if i > MAX_LINES:
-#                 break
-#             pilomoji.text((x, y), line, font=font, fill=(255, 255, 255, 255), embedded_color=True)
-#         y += FONT_WIDTH
-#         i += 1
-#     draw = ImageDraw.Draw(image)
-#     avatar = Image.open(avatar_url)
-#     avatar = avatar.resize((150, 150))
-#     avatar = alpha_gradient(avatar, 50, 150)
-#     # left to right alpha gradient
-#     # draw avatar on the left
-#     image.paste(avatar, (0, 0), avatar)
-
-#     x_center = 403
-#     # center user card
-#     card_size = font_small.getsize("@"+reply.user_card)
-#     x_card_start = x_center - card_size[0] / 2
-#     draw.text((x_card_start, 95), "@"+reply.user_card, font=font_small, fill=(169, 172, 184, 255))
-
-#     fmt_time = strftime("%Y年%m月%d日 %H点%M分", localtime(reply.time))
-#     time_size = font_small.getsize(fmt_time)
-#     x_time_start = x_center - time_size[0] / 2
-#     draw.text((x_time_start, 115), fmt_time, font=font_small, fill=(169, 172, 184, 255))
-#     bytes_io = BytesIO()
-#     image = image.convert('RGB')
-#     image.save(bytes_io, format="JPEG")
-#     if len(dump_to) > 0:
-#         image.save(dump_to)
-#     return bytes_io
+run(generate_image(my_string, (255, 255, 255), "avatar_url: str"))
