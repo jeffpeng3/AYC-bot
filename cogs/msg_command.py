@@ -11,34 +11,50 @@ from discord.ext.commands import Cog
 from core.emoji_list import Emoji
 from discord.ui.modal import Modal
 from discord.ui.input_text import InputText
-import google.generativeai as genai
-from google.ai.generativelanguage import HarmCategory, SafetySetting
+from google import genai
+from google.genai.chats import AsyncChat
+from google.genai.types import (
+    Tool,
+    GenerateContentConfig,
+    GoogleSearch,
+    Content,
+    Part,
+    SafetySetting,
+    HarmCategory,
+    HarmBlockThreshold,
+)
+
+model = "gemini-2.0-flash"
+config = GenerateContentConfig(
+    system_instruction="請使用繁體中文回答",
+    tools=[Tool(google_search=GoogleSearch())],
+    temperature=0.5,
+    max_output_tokens=900,
+    safety_settings=[
+        SafetySetting(
+            category=HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold=HarmBlockThreshold.BLOCK_NONE,
+        ),
+        SafetySetting(
+            category=HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            threshold=HarmBlockThreshold.BLOCK_NONE,
+        ),
+        SafetySetting(
+            category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold=HarmBlockThreshold.BLOCK_NONE,
+        ),
+        SafetySetting(
+            category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold=HarmBlockThreshold.BLOCK_NONE,
+        ),
+    ],
+)
 
 
 class msg_command(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot: Bot = bot
-        self.model = genai.GenerativeModel(
-            "gemini-pro",
-            safety_settings=(
-                {
-                    "category": HarmCategory.HARM_CATEGORY_HARASSMENT,
-                    "threshold": SafetySetting.HarmBlockThreshold.BLOCK_NONE,
-                },
-                {
-                    "category": HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                    "threshold": SafetySetting.HarmBlockThreshold.BLOCK_NONE,
-                },
-                {
-                    "category": HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                    "threshold": SafetySetting.HarmBlockThreshold.BLOCK_NONE,
-                },
-                {
-                    "category": HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                    "threshold": SafetySetting.HarmBlockThreshold.BLOCK_NONE,
-                },
-            ),
-        )
+        self.client = genai.Client()
 
     @message_command(name="mad")
     @default_permissions(manage_messages=True)
@@ -52,19 +68,14 @@ class msg_command(Cog):
 
     @message_command(name="gemini")
     async def gemini(self, ctx: ApplicationContext, message: Message):
+        chat = self.client.aio.chats.create(model=model, config=config)
         content = message.content
         if not content:
             await ctx.respond("無法取得訊息內容", ephemeral=True)
             return
         await ctx.defer(ephemeral=True)
-        chats = [
-            {"role": "user", "parts": ["請使用繁體中文回答"]},
-            {"role": "model", "parts": ["好的。我會使用繁體中文回答。"]},
-        ]
-        chats.append(
-            {"role": "user", "parts": [content]},
-        )
-        result = await self.model.generate_content_async(chats)
+        content = Content(role="user", parts=[Part(text=content)])
+        result = await chat.send_message(content)
         await message.reply(f"{result.text}",mention_author=False)
         await ctx.respond("已生成", delete_after=1)
 
