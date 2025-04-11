@@ -6,20 +6,37 @@ from google.genai.types import (
     Tool,
     GenerateContentConfig,
     GoogleSearch,
-    Part,
-    Blob,
+    Content,
     SafetySetting,
     HarmCategory,
     HarmBlockThreshold,
 )
-from pprint import pformat
+
+# from pprint import pformat
 from core.shared import get_client
 from aiohttp import ClientSession
 from asyncio import create_task
+from core.utils import parse_message, split_markdown_text
 
 model = "gemini-2.0-flash"
 config = GenerateContentConfig(
-    system_instruction="你是 HACHI，隸屬於 RK Music 旗下 LIVE UNION 的虛擬歌手，並與 King Record 簽約主流出道。在這之後的對話，請使用繁體中文回答",
+    system_instruction="""你是 HACHI，現居於日本北海道，因此時區比其他人快一小時，是隸屬於 RK Music 旗下 LIVE UNION 的虛擬歌手，並與 King Record 簽約主流出道。
+請使用繁體中文回答。
+在這之後的多人對話，我會在開頭加上說話者的標籤，
+格式為
+<author>{User Name}({ID})</author>
+<content>{text}</content>
+
+你在回覆時，千萬不要使用<author>與<context>標籤。
+必須遵照格式 @<ID> 來提及特定的使用者。
+
+例如：
+<author>HACHI🐝(551024169442344970)</author>
+<content>我是誰</content>
+
+你可以使用以下方式回覆：
+你是HACHI🐝，我可以用<@551024169442344970>來提及你
+""",
     tools=[Tool(google_search=GoogleSearch())],
     temperature=0.5,
     max_output_tokens=900,
@@ -55,23 +72,6 @@ class llm(Cog):
         self.client = genai.Client()
         self.chats: dict[int, AsyncChat] = {}
 
-    async def parse_message(self, role: str, message: Message, text: str) -> Part:
-        part = Part(text=text)
-        MIME_type = {
-            "png": "image/png",
-            "jpg": "image/jpeg",
-            "jpeg": "image/jpeg",
-            "webp": "image/webp",
-        }
-        for file in message.attachments:
-            if any([file.filename.endswith(i) for i in ["png", "jpg", "jpeg", "webp"]]):
-                extension = file.filename.split(".")[-1]
-                mime = MIME_type[extension]
-                async with self.session.get(file.url) as response:
-                    image_raw = await response.read()
-                part.inline_data = Blob(data=image_raw, mime_type=mime)
-        return part
-
     async def create_thread_and_chat(self, message: Message) -> Thread:
         text_only = message.content.split(maxsplit=1)[-1]
         thread = await message.create_thread(name=text_only, auto_archive_duration=60)
@@ -82,9 +82,9 @@ class llm(Cog):
         history = []
         async for i in thread.history(limit=10):
             role = "model" if i.author.bot else "user"
-            history.append(await self.parse_message(role, i, i.content))
+            history.append(Content(role=role, parts=[await parse_message(i)]))
 
-        self.chats[thread.id] = self.client.chats.create(
+        self.chats[thread.id] = self.client.aio.chats.create(
             model=model, config=config, history=history
         )
         return self.chats[thread.id]
@@ -101,7 +101,8 @@ class llm(Cog):
         if self.bot.user in message.mentions:
             if not message.content.startswith("<@"):
                 return
-            msg = message.content.split(maxsplit=1)[-1]
+            message.content = message.content.split(">", 1)[-1]
+            # print(f"message.content: {message.content}")
             thread = await self.create_thread_and_chat(message)
             chat = self.chats[thread.id]
 
@@ -124,16 +125,21 @@ class llm(Cog):
                 chat = await self.restore_history(thread)
         else:
             return
-
         if chat is None:
             return
         with thread.typing():
             try:
-                msg = await self.parse_message("user", message, message.content)
+                msg = await parse_message(message)
                 result = await chat.send_message(msg)
-                # if result.candidates and result.candidates[0].content:
-                #     await thread.send(pformat(result.candidates[0]))
-                await thread.send(result.text)
+                text = result.text
+                if text is None:
+                    await thread.send("無法產生回應")
+                    return
+
+                # 分割長訊息，保持 markdown 格式完整
+                chunks = await split_markdown_text(text)
+                for chunk in chunks:
+                    await thread.send(chunk)
             except Exception as e:
                 await thread.send(str(e))
 

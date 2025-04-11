@@ -12,13 +12,11 @@ from core.emoji_list import Emoji
 from discord.ui.modal import Modal
 from discord.ui.input_text import InputText
 from google import genai
-from google.genai.chats import AsyncChat
+from core.utils import parse_message
 from google.genai.types import (
     Tool,
     GenerateContentConfig,
     GoogleSearch,
-    Content,
-    Part,
     SafetySetting,
     HarmCategory,
     HarmBlockThreshold,
@@ -69,13 +67,8 @@ class msg_command(Cog):
     @message_command(name="gemini")
     async def gemini(self, ctx: ApplicationContext, message: Message):
         chat = self.client.aio.chats.create(model=model, config=config)
-        content = message.content
-        if not content:
-            await ctx.respond("無法取得訊息內容", ephemeral=True)
-            return
-        await ctx.defer(ephemeral=True)
-        content = Content(role="user", parts=[Part(text=content)])
-        result = await chat.send_message(content)
+        part = await parse_message(message)
+        result = await chat.send_message(part)
         await message.reply(f"{result.text}",mention_author=False)
         await ctx.respond("已生成", delete_after=1)
 
