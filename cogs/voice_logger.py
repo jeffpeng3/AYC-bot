@@ -67,7 +67,8 @@ class voice_logger(Cog):
                 message += '開始直播了'
             else:
                 message += '停止直播了'
-
+        else:
+            message += "不知道怎麼了"
 
         name = member.display_name
         avatar = (
