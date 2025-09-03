@@ -73,7 +73,7 @@ class llm(Cog):
         self.chats: dict[int, AsyncChat] = {}
 
     async def create_thread_and_chat(self, message: Message) -> Thread:
-        text_only = message.content.split(maxsplit=1)[-1]
+        text_only = message.content.split(maxsplit=1)[-1][:20]
         thread = await message.create_thread(name=text_only, auto_archive_duration=60)
         self.chats[thread.id] = self.client.aio.chats.create(model=model, config=config)
         return thread
