@@ -20,7 +20,7 @@ class auto_mod(Cog):
             for i in range(4):
                 name += s[int(code[i * 2 : 2 * (i + 1)], 2)]
             new_channel = await after.channel.clone(name=f"分流{name}", reason="分流")
-            await new_channel.edit(rtc_region=VoiceRegion.japan, nsfw=True) # type: ignore
+            await new_channel.edit(rtc_region=VoiceRegion.india, nsfw=True) # type: ignore
             await member.move_to(new_channel)
 
         if before.channel:
