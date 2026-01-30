@@ -53,16 +53,17 @@ class slh_command(Cog):
         targetChannel = user.voice.channel
         current_region = targetChannel.rtc_region
         other_regions = [
-            region.value
-            for region in VoiceRegion
-            if region != current_region
+            region.value for region in VoiceRegion if region != current_region
         ]
-        filtered_regions = filter(lambda name: name.startswith(ctx.value), other_regions)
+        if ctx.value == "":
+            return other_regions
+        filtered_regions = filter(
+            lambda name: name.startswith(ctx.value), other_regions
+        )
         return list(filtered_regions)
 
-
-    @slash_command(name="region", description="更換語音地區", autocomplete=list_other_region)
-    @option(name="region", type=str, description="地區")
+    @slash_command(name="region", description="更換語音地區")
+    @option(name="region", type=str, description="地區", autocomplete=list_other_region)
     async def region(self, ctx: ApplicationContext, region: str):
         if not ctx.interaction.user:
             return []
@@ -75,7 +76,8 @@ class slh_command(Cog):
             return []
         targetChannel = user.voice.channel
         await targetChannel.edit(
-            rtc_region=VoiceRegion(region), reason=f"由 {ctx.interaction.user.display_name} 指定"
+            rtc_region=VoiceRegion(region),
+            reason=f"由 {ctx.interaction.user.display_name} 指定",
         )
         await ctx.respond(f"已將語音頻道地區更改為 {region}", ephemeral=True)
 

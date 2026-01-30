@@ -60,8 +60,11 @@ async def on_ready():
     for filename in listdir("cogs"):
         if filename.endswith(".py"):
             print(f"loading {filename} ...")
-            bot.load_extension(f"cogs.{filename[:-3]}")
-            print(f"load {filename} done")
+            try:
+                bot.load_extension(f"cogs.{filename[:-3]}")
+                print(f"load {filename} done")
+            except Exception as e:
+                print(f"Failed to load {filename}: {e}")
     await bot.sync_commands()
     print("-------------")
     init_once.set()
