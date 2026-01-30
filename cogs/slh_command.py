@@ -1,7 +1,9 @@
 from discord import (
     ApplicationContext,
+    AutocompleteContext,
     Embed,
     Member,
+    VoiceRegion,
     Bot,
     User,
     VoiceChannel,
@@ -23,7 +25,7 @@ class slh_command(Cog):
     )
     async def snowBall(self, ctx: ApplicationContext, cnt: int = 1):
         channel: VoiceChannel = self.bot.get_channel(883718467562401812)  # type: ignore
-        rename = f"立訓吃了{int(channel.name[4:-3])+cnt}顆雪球"
+        rename = f"立訓吃了{int(channel.name[4:-3]) + cnt}顆雪球"
         await channel.edit(name=rename)
         await ctx.respond(f"立訓這次吃了{cnt}顆雪球", ephemeral=True)
 
@@ -38,7 +40,44 @@ class slh_command(Cog):
         )
         await ctx.respond(embed=embed, ephemeral=True)
 
-        
+    async def list_other_region(self, ctx: AutocompleteContext) -> list[str]:
+        if not ctx.interaction.user:
+            return []
+        if not isinstance(ctx.interaction.user, Member):
+            return []
+        user = ctx.interaction.user
+        if not user.voice:
+            return []
+        if not user.voice.channel:
+            return []
+        targetChannel = user.voice.channel
+        current_region = targetChannel.rtc_region
+        other_regions = [
+            region.value
+            for region in VoiceRegion
+            if region != current_region
+        ]
+        filtered_regions = filter(lambda name: name.startswith(ctx.value), other_regions)
+        return list(filtered_regions)
+
+
+    @slash_command(name="region", description="更換語音地區", autocomplete=list_other_region)
+    @option(name="region", type=str, description="地區")
+    async def region(self, ctx: ApplicationContext, region: str):
+        if not ctx.interaction.user:
+            return []
+        if not isinstance(ctx.interaction.user, Member):
+            return []
+        user = ctx.interaction.user
+        if not user.voice:
+            return []
+        if not user.voice.channel:
+            return []
+        targetChannel = user.voice.channel
+        await targetChannel.edit(
+            rtc_region=VoiceRegion(region), reason=f"由 {ctx.interaction.user.display_name} 指定"
+        )
+        await ctx.respond(f"已將語音頻道地區更改為 {region}", ephemeral=True)
 
 
 def setup(bot: Bot):
