@@ -1,15 +1,13 @@
-FROM python:3.12-alpine AS base
-FROM base AS builder
-COPY requirements.txt /requirements.txt
-RUN pip install --user -r /requirements.txt
+FROM ghcr.io/astral-sh/uv:python3.14-slim AS builder
 
-FROM base
-# copy only the dependencies installation from the 1st stage image
-COPY --from=builder /root/.local /root/.local
-COPY . /app
 WORKDIR /app
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
 
-# update PATH environment variable
-ENV PATH=/home/app/.local/bin:$PATH
+FROM python:3.14-slim
+WORKDIR /app
+COPY --from=builder /app/.venv /app/.venv
+COPY . /app
+ENV PATH="/app/.venv/bin:$PATH"
 
 CMD ["python", "-u", "bot.py"]
