@@ -11,6 +11,8 @@ from core.shared import get_client
 from aiohttp import ClientSession
 from discord.ext.commands import Cog
 
+DEFAULT_AVATAR_URL = "https://www.siasat.com/wp-content/uploads/2021/05/Discord.jpg"
+
 
 class voice_logger(Cog):
     def __init__(self, bot: Bot):
@@ -34,7 +36,7 @@ class voice_logger(Cog):
             if before.channel:
                 message += f'離開了 {before.channel.name}'
             else:
-                print('為啥這個不成立阿',before,after)
+                print('為啥這個不成立阿', before, after)
                 return
         elif not before.channel:
             message += f'加入了 {after.channel.name}'
@@ -71,11 +73,7 @@ class voice_logger(Cog):
             message += "不知道怎麼了"
 
         name = member.display_name
-        avatar = (
-            member.avatar.url
-            if member.avatar
-            else "https://www.siasat.com/wp-content/uploads/2021/05/Discord.jpg"
-        )
+        avatar = member.avatar.url if member.avatar else DEFAULT_AVATAR_URL
         await self.webhook.send(
             message,
             username=name,
