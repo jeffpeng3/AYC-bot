@@ -2,20 +2,13 @@ from discord import Bot, Message, Thread, TextChannel
 from discord.ext.commands import Cog
 from google import genai
 from google.genai.chats import AsyncChat
-from google.genai.types import (
-    Tool,
-    GenerateContentConfig,
-    GoogleSearch,
-    Content,
-    SafetySetting,
-    HarmCategory,
-    HarmBlockThreshold,
-)
+from google.genai.types import Content
 from core.shared import get_client
 from aiohttp import ClientSession
 from asyncio import create_task
 from core.utils import parse_message, split_markdown_text
-from core.config import LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_OUTPUT_TOKENS
+from core.config import LLM_MODEL
+from core.llm_config import make_llm_config
 
 THREAD_AUTO_ARCHIVE_DURATION = 60
 THREAD_HISTORY_LIMIT = 10
@@ -38,18 +31,7 @@ SYSTEM_INSTRUCTION = """你是 HACHI，現居於日本北海道，因此時區�
 你是HACHI🐝，我可以用<@551024169442344970>來提及你
 """
 
-config = GenerateContentConfig(
-    system_instruction=SYSTEM_INSTRUCTION,
-    tools=[Tool(google_search=GoogleSearch())],
-    temperature=LLM_TEMPERATURE,
-    max_output_tokens=LLM_MAX_OUTPUT_TOKENS,
-    safety_settings=[
-        SafetySetting(category=HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=HarmBlockThreshold.BLOCK_NONE),
-        SafetySetting(category=HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=HarmBlockThreshold.BLOCK_NONE),
-        SafetySetting(category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=HarmBlockThreshold.BLOCK_NONE),
-        SafetySetting(category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=HarmBlockThreshold.BLOCK_NONE),
-    ],
-)
+config = make_llm_config(SYSTEM_INSTRUCTION)
 
 
 class llm(Cog):

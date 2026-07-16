@@ -13,32 +13,14 @@ from discord.ui.modal import Modal
 from discord.ui.input_text import InputText
 from google import genai
 from core.utils import parse_message
-from google.genai.types import (
-    Tool,
-    GenerateContentConfig,
-    GoogleSearch,
-    SafetySetting,
-    HarmCategory,
-    HarmBlockThreshold,
-)
-from core.config import LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_OUTPUT_TOKENS
+from core.config import LLM_MODEL
+from core.llm_config import make_llm_config
 
 MAD_DELAY = 30
 DELETE_AFTER = 1
 EMOJI_TRUE = ["🇹", "🇷", "🇺", "🇪"]
 
-config = GenerateContentConfig(
-    system_instruction="請使用繁體中文回答",
-    tools=[Tool(google_search=GoogleSearch())],
-    temperature=LLM_TEMPERATURE,
-    max_output_tokens=LLM_MAX_OUTPUT_TOKENS,
-    safety_settings=[
-        SafetySetting(category=HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=HarmBlockThreshold.BLOCK_NONE),
-        SafetySetting(category=HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=HarmBlockThreshold.BLOCK_NONE),
-        SafetySetting(category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=HarmBlockThreshold.BLOCK_NONE),
-        SafetySetting(category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=HarmBlockThreshold.BLOCK_NONE),
-    ],
-)
+config = make_llm_config("請使用繁體中文回答")
 
 
 class msg_command(Cog):
