@@ -2,6 +2,7 @@ from asyncio import create_task, gather
 from discord import (
     AllowedMentions,
     Bot,
+    Guild,
     Message,
     RawMessageDeleteEvent,
     RawMessageUpdateEvent,
@@ -18,16 +19,27 @@ class message_logger(WebhookLogger):
     def __init__(self, bot: Bot):
         super().__init__(bot, "TEXT_WEBHOOK")
 
+    @staticmethod
+    def _message_url(guild_id: int | None, channel_id: int, message_id: int) -> str:
+        gid = guild_id if guild_id else "@me"
+        return f"https://discord.com/channels/{gid}/{channel_id}/{message_id}"
+
+    def _format_location(self, guild_id: int | None, channel_id: int) -> str:
+        if guild_id:
+            guild = self.bot.get_guild(guild_id)
+            name = guild.name if guild else str(guild_id)
+            return f"{name}的<#{channel_id}>"
+        return "DM"
+
     @Cog.listener("on_message")
     async def on_message(self, message: Message):
         if message.author.bot:
             return
         if message.channel.id in IGNORED_CHANNEL_IDS:
             return
-        if message.guild:
-            location = f"{message.guild.name}的<#{message.channel.id}>"
-        else:
-            location = "DM"
+        location = self._format_location(
+            message.guild.id if message.guild else None, message.channel.id
+        )
 
         avatar = message.author.display_avatar.url
         name = message.author.display_name
@@ -52,11 +64,8 @@ class message_logger(WebhookLogger):
             return
         message = payload.cached_message
         if not message:
-            if payload.guild_id:
-                location = f"{self.bot.get_guild(payload.guild_id)}的<#{payload.channel_id}>"
-            else:
-                location = "DM"
-            msg = f"https://discord.com/channels/{payload.guild_id if payload.guild_id else '@me'}/{payload.channel_id}/{payload.message_id}\n"
+            location = self._format_location(payload.guild_id, payload.channel_id)
+            msg = f"{self._message_url(payload.guild_id, payload.channel_id, payload.message_id)}\n"
             msg += f"{DEFAULT_NAME}刪除了在{location}的訊息"
             embeds = []
             name = DEFAULT_NAME
@@ -64,10 +73,9 @@ class message_logger(WebhookLogger):
         else:
             if message.author.bot:
                 return
-            if message.guild:
-                location = f"{message.guild.name}的<#{message.channel.id}>"
-            else:
-                location = "DM"
+            location = self._format_location(
+                message.guild.id if message.guild else None, message.channel.id
+            )
 
             avatar = message.author.display_avatar.url
             name = message.author.display_name
@@ -91,11 +99,8 @@ class message_logger(WebhookLogger):
             return
         message = self.bot.get_message(payload.message_id)
         if not message:
-            if payload.guild_id:
-                location = f"{self.bot.get_guild(payload.guild_id)}的<#{payload.channel_id}>"
-            else:
-                location = "DM"
-            msg = f"https://discord.com/channels/{payload.guild_id if payload.guild_id else '@me'}/{payload.channel_id}/{payload.message_id}\n"
+            location = self._format_location(payload.guild_id, payload.channel_id)
+            msg = f"{self._message_url(payload.guild_id, payload.channel_id, payload.message_id)}\n"
             msg += f"{DEFAULT_NAME}編輯了在{location}的訊息"
             embeds = []
             attachment = []
@@ -104,10 +109,9 @@ class message_logger(WebhookLogger):
         else:
             if message.author.bot:
                 return
-            if message.guild:
-                location = f"{message.guild.name}的<#{message.channel.id}>"
-            else:
-                location = "DM"
+            location = self._format_location(
+                message.guild.id if message.guild else None, message.channel.id
+            )
 
             avatar = message.author.display_avatar.url
             name = message.author.display_name
