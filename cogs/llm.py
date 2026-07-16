@@ -35,12 +35,12 @@ config = make_llm_config(SYSTEM_INSTRUCTION)
 
 
 class llm(Cog):
-    async def async_init(self) -> None:
+    async def _init_session(self) -> None:
         self.session = await get_client()
 
     def __init__(self, bot: Bot) -> None:
         self.session: ClientSession
-        create_task(self.async_init())
+        create_task(self._init_session())
         self.bot: Bot = bot
         self.client = genai.Client()
         self.chats: dict[int, AsyncChat] = {}

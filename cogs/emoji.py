@@ -37,7 +37,7 @@ class emoji(Cog):
         await ctx.respond(f'你使用的表情已設定為 : {react}', ephemeral=True)
 
     @emoji_command_group.command(name='unset', description='取消要自動反應的表情')
-    async def un_set(self, ctx: ApplicationContext) -> None:
+    async def unset(self, ctx: ApplicationContext) -> None:
         if str(ctx.author.id) not in self.emoji_map:
             await ctx.respond('你現在沒有正在使用的表情', ephemeral=True)
             return

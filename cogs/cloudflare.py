@@ -29,7 +29,7 @@ class cf_command(Cog):
     @option(name="service_type", type=str, choices=[OptionChoice("minecraft", "_minecraft")])
     @option(name="name", type=str, description="名稱, <name>.<domain>")
     @option(name="port", type=int, description="port", min_value=PORT_MIN, max_value=PORT_MAX)
-    async def addRecord(self, ctx: ApplicationContext, service_type: str, name: str, port: int):
+    async def add_record(self, ctx: ApplicationContext, service_type: str, name: str, port: int):
         srv_name = f"{service_type}._tcp.{name}.sub"
         embed = Embed(title="正在新增DNS紀錄...", description=f"網域: {name}.sub.{self.domain}\n指向: sub.{self.domain}:{port}", color=COLOR_PENDING)
         await ctx.respond(embed=embed)

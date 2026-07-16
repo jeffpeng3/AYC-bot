@@ -26,7 +26,7 @@ class slh_command(Cog):
         description="立訓又吃到雪球了😭",
         guild_ids=[SNOWBALL_GUILD_ID],
     )
-    async def snowBall(self, ctx: ApplicationContext, cnt: int = 1):
+    async def snow_ball(self, ctx: ApplicationContext, cnt: int = 1):
         channel: VoiceChannel = self.bot.get_channel(SNOWBALL_CHANNEL_ID)  # type: ignore
         rename = f"立訓吃了{int(channel.name[4:-3]) + cnt}顆雪球"
         await channel.edit(name=rename)
