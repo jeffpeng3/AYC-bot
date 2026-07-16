@@ -14,18 +14,13 @@ from asyncio import Event, new_event_loop
 from discord import Bot as _Bot
 
 from core.shared import close_client
-# import mafic
+
+OWNER_ID = 551024169442344970
+GUILD_ID = 879748390290853918
 
 
-def command_prefix(bot: _Bot | AutoShardedBot, msg: Message) -> list[str]:
+def command_prefix(_bot: _Bot | AutoShardedBot, _msg: Message) -> list[str]:
     return ["-"]
-
-
-class Bot(_Bot):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # self.pool = mafic.NodePool(self)
 
 
 bot = Bot(
@@ -33,7 +28,7 @@ bot = Bot(
     help_command=None,
     case_insensitive=True,
     intents=Intents.all(),
-    owner_id=551024169442344970,
+    owner_id=OWNER_ID,
     auto_sync_commands=False,
 )
 
@@ -110,8 +105,7 @@ async def list_loaded_cog(ctx: AutocompleteContext) -> list[str]:
 
 @bot.slash_command(
     name="load",
-    guild_ids=[879748390290853918],
-    # contexts=InteractionContextType.guild,
+    guild_ids=[GUILD_ID],
     description="載入模組",
 )
 @option(
@@ -130,8 +124,7 @@ async def load(ctx: ApplicationContext, extension: str):
 
 @bot.slash_command(
     name="sync",
-    guild_ids=[879748390290853918],
-    # contexts=InteractionContextType.guild,
+    guild_ids=[GUILD_ID],
     description="同步指令",
 )
 @default_permissions(administrator=True)
@@ -144,8 +137,7 @@ async def sync(ctx: ApplicationContext):
 
 @bot.slash_command(
     name="unload",
-    guild_ids=[879748390290853918],
-    # contexts=InteractionContextType.guild,
+    guild_ids=[GUILD_ID],
     description="卸載模組",
 )
 @option(
@@ -164,8 +156,7 @@ async def unload(ctx: ApplicationContext, extension: str):
 
 @bot.slash_command(
     name="reload",
-    guild_ids=[879748390290853918],
-    # contexts=InteractionContextType.guild,
+    guild_ids=[GUILD_ID],
     description="重新載入模組",
 )
 @option(
