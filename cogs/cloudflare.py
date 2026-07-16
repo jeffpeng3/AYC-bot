@@ -22,8 +22,8 @@ COLOR_ERROR = 0xFF0000
 class cf_command(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot: Bot = bot
-        self.cf = AsyncCloudflare()
-        self.domain = getenv("DOMAIN", "")
+        self.cf: AsyncCloudflare = AsyncCloudflare()
+        self.domain: str = getenv("DOMAIN", "")
 
     @slash_command(name="add_record", description="新增DNS紀錄", guild_ids=[GUILD_ID])
     @option(name="service_type", type=str, choices=[OptionChoice("minecraft", "_minecraft")])

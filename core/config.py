@@ -44,7 +44,7 @@ class RuntimeConfig:
         except (FileNotFoundError, ValueError):
             return "india"
 
-    def _save_region(self):
+    def _save_region(self) -> None:
         with open(REGION_FILE, "w") as f:
             dump({"last_region": self._region}, f)
 
@@ -58,7 +58,7 @@ class RuntimeConfig:
         self._save_region()
 
     # ── emoji ──
-    def _load_emoji(self):
+    def _load_emoji(self) -> _AutoSaveDict:
         def _save(d: _AutoSaveDict):
             with open(EMOJI_FILE, "w", encoding="utf-8") as f:
                 dump(dict(d), f, ensure_ascii=False, indent=4)
@@ -74,4 +74,4 @@ class RuntimeConfig:
         return self._emoji
 
 
-runtime = RuntimeConfig()
+runtime: RuntimeConfig = RuntimeConfig()

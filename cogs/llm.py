@@ -42,7 +42,7 @@ class llm(Cog):
         self.session: ClientSession
         create_task(self._init_session())
         self.bot: Bot = bot
-        self.client = genai.Client()
+        self.client: genai.Client = genai.Client()
         self.chats: dict[int, AsyncChat] = {}
 
     async def create_thread_and_chat(self, message: Message) -> Thread:

@@ -14,7 +14,7 @@ class WebhookLogger(Cog):
         self.webhook: Webhook | None = None
         create_task(self._init())
 
-    async def _init(self):
+    async def _init(self) -> None:
         self.session = await get_client()
         url = getenv(self.env_key, "")
         if url:

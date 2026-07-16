@@ -26,7 +26,7 @@ config = make_llm_config("請使用繁體中文回答")
 class msg_command(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot: Bot = bot
-        self.client = genai.Client()
+        self.client: genai.Client = genai.Client()
 
     @message_command(name="mad")
     @default_permissions(manage_messages=True)
