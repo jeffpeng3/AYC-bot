@@ -44,6 +44,25 @@ class special_reaction(Cog):
             except Exception:
                 pass
 
+    async def _handle_chicken_reaction(self, reaction: Reaction, user: User) -> None:
+        await reaction.remove(user)
+        digit_emoji = [
+            "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣",
+            "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣",
+        ]
+        for i in reaction.message.reactions:
+            if i.emoji in digit_emoji:
+                return
+        channel = self.bot.get_channel(JJ_CHANNEL_ID)
+        if not isinstance(channel, GuildChannel):
+            return
+        count = int(channel.name[5:-3])
+        digits = str(count)
+        if len(set(digits)) != len(digits):
+            return
+        for d in digits:
+            await reaction.message.add_reaction(digit_emoji[int(d)])
+
     @Cog.listener("on_reaction_add")
     async def reaction_add(self, reaction: Reaction, user: User):
         if user.bot:
@@ -51,31 +70,7 @@ class special_reaction(Cog):
         try:
             match reaction.emoji:
                 case "🐔" if reaction.message.author.id == JJ_USER_ID:
-                    await reaction.remove(user)
-                    emoji = [
-                        "0️⃣",
-                        "1️⃣",
-                        "2️⃣",
-                        "3️⃣",
-                        "4️⃣",
-                        "5️⃣",
-                        "6️⃣",
-                        "7️⃣",
-                        "8️⃣",
-                        "9️⃣",
-                    ]
-                    for i in reaction.message.reactions:
-                        if i.emoji in emoji:
-                            return
-                    chicken_channel = self.bot.get_channel(JJ_CHANNEL_ID)
-                    if isinstance(chicken_channel, GuildChannel):
-                        chicken_count = int(chicken_channel.name[5:-3])
-                        chicken_str = str(chicken_count)
-                        chicken_set = {*chicken_str}
-                        if len(chicken_str) != len(chicken_set):
-                            return
-                        for i in chicken_str:
-                            await reaction.message.add_reaction(emoji[int(i)])
+                    await self._handle_chicken_reaction(reaction, user)
         except Exception as e:
             logger.exception("special_reaction 錯誤: %s", e)
 
