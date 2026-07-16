@@ -1,34 +1,22 @@
 from asyncio import create_task, gather
-from os import getenv
 from discord import (
     AllowedMentions,
     Bot,
     Message,
     RawMessageDeleteEvent,
     RawMessageUpdateEvent,
-    Webhook,
 )
-from core.shared import get_client
-from aiohttp import ClientSession
 from discord.ext.commands import Cog
+from core.webhook_logger import WebhookLogger
 
 IGNORED_CHANNEL_IDS = [1099435386113105992]
 DEFAULT_NAME = "某人"
 DEFAULT_AVATAR_URL = "https://www.siasat.com/wp-content/uploads/2021/05/Discord.jpg"
 
 
-class message_logger(Cog):
+class message_logger(WebhookLogger):
     def __init__(self, bot: Bot):
-        self.bot: Bot = bot
-        self.session: ClientSession
-        self.webhook: Webhook
-        create_task(self.initial_variable())
-
-    async def initial_variable(self):
-        self.session = await get_client()
-        self.webhook = Webhook.from_url(
-            getenv("TEXT_WEBHOOK", ""), session=self.session
-        )
+        super().__init__(bot, "TEXT_WEBHOOK")
 
     @Cog.listener("on_message")
     async def on_message(self, message: Message):

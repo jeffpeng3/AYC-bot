@@ -1,5 +1,4 @@
 from asyncio import create_task
-from os import getenv
 from discord import (
     AllowedMentions,
     ApplicationContext,
@@ -8,26 +7,15 @@ from discord import (
     MessageCommand,
     SlashCommand,
     UserCommand,
-    Webhook,
 )
 from discord.abc import GuildChannel
-from aiohttp import ClientSession
-from core.shared import get_client
 from discord.ext.commands import Cog
+from core.webhook_logger import WebhookLogger
 
 
-class command_logger(Cog):
+class command_logger(WebhookLogger):
     def __init__(self, bot: Bot):
-        self.bot: Bot = bot
-        self.session: ClientSession
-        self.webhook: Webhook
-        create_task(self.initial_variable())
-
-    async def initial_variable(self):
-        self.session = await get_client()
-        self.webhook = Webhook.from_url(
-            getenv("COMMAND_WEBHOOK", ""), session=self.session
-        )
+        super().__init__(bot, "COMMAND_WEBHOOK")
 
     @Cog.listener("on_application_command")
     async def on_application_command(self, ctx: ApplicationContext):

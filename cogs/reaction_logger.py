@@ -1,28 +1,16 @@
 from asyncio import create_task
-from os import getenv
 from discord import (
     AllowedMentions,
     Bot,
     RawReactionActionEvent,
-    Webhook,
 )
-from core.shared import get_client
-from aiohttp import ClientSession
 from discord.ext.commands import Cog
+from core.webhook_logger import WebhookLogger
 
 
-class reaction_logger(Cog):
+class reaction_logger(WebhookLogger):
     def __init__(self, bot: Bot):
-        self.bot: Bot = bot
-        self.session: ClientSession
-        self.webhook: Webhook
-        create_task(self.initial_variable())
-
-    async def initial_variable(self):
-        self.session = await get_client()
-        self.webhook = Webhook.from_url(
-            getenv("REACTION_WEBHOOK", ""), session=self.session
-        )
+        super().__init__(bot, "REACTION_WEBHOOK")
 
     @Cog.listener("on_raw_reaction_add")
     async def on_raw_reaction_add(self, payload: RawReactionActionEvent):
