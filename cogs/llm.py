@@ -11,16 +11,16 @@ from google.genai.types import (
     HarmCategory,
     HarmBlockThreshold,
 )
-
-# from pprint import pformat
 from core.shared import get_client
 from aiohttp import ClientSession
 from asyncio import create_task
 from core.utils import parse_message, split_markdown_text
+from core.config import LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_OUTPUT_TOKENS
 
-model = "gemini-2.0-flash"
-config = GenerateContentConfig(
-    system_instruction="""你是 HACHI，現居於日本北海道，因此時區比其他人快一小時，是隸屬於 RK Music 旗下 LIVE UNION 的虛擬歌手，並與 King Record 簽約主流出道。
+THREAD_AUTO_ARCHIVE_DURATION = 60
+THREAD_HISTORY_LIMIT = 10
+
+SYSTEM_INSTRUCTION = """你是 HACHI，現居於日本北海道，因此時區比其他人快一小時，是隸屬於 RK Music 旗下 LIVE UNION 的虛擬歌手，並與 King Record 簽約主流出道。
 請使用繁體中文回答。
 在這之後的多人對話，我會在開頭加上說話者的標籤，
 格式為
@@ -36,27 +36,18 @@ config = GenerateContentConfig(
 
 你可以使用以下方式回覆：
 你是HACHI🐝，我可以用<@551024169442344970>來提及你
-""",
+"""
+
+config = GenerateContentConfig(
+    system_instruction=SYSTEM_INSTRUCTION,
     tools=[Tool(google_search=GoogleSearch())],
-    temperature=0.5,
-    max_output_tokens=900,
+    temperature=LLM_TEMPERATURE,
+    max_output_tokens=LLM_MAX_OUTPUT_TOKENS,
     safety_settings=[
-        SafetySetting(
-            category=HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold=HarmBlockThreshold.BLOCK_NONE,
-        ),
-        SafetySetting(
-            category=HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            threshold=HarmBlockThreshold.BLOCK_NONE,
-        ),
-        SafetySetting(
-            category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-            threshold=HarmBlockThreshold.BLOCK_NONE,
-        ),
-        SafetySetting(
-            category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            threshold=HarmBlockThreshold.BLOCK_NONE,
-        ),
+        SafetySetting(category=HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=HarmBlockThreshold.BLOCK_NONE),
+        SafetySetting(category=HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=HarmBlockThreshold.BLOCK_NONE),
+        SafetySetting(category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=HarmBlockThreshold.BLOCK_NONE),
+        SafetySetting(category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=HarmBlockThreshold.BLOCK_NONE),
     ],
 )
 
@@ -74,18 +65,18 @@ class llm(Cog):
 
     async def create_thread_and_chat(self, message: Message) -> Thread:
         text_only = message.content.split(maxsplit=1)[-1][:20]
-        thread = await message.create_thread(name=text_only, auto_archive_duration=60)
-        self.chats[thread.id] = self.client.aio.chats.create(model=model, config=config)
+        thread = await message.create_thread(name=text_only, auto_archive_duration=THREAD_AUTO_ARCHIVE_DURATION)
+        self.chats[thread.id] = self.client.aio.chats.create(model=LLM_MODEL, config=config)
         return thread
 
     async def restore_history(self, thread: Thread) -> AsyncChat:
         history = []
-        async for i in thread.history(limit=10):
+        async for i in thread.history(limit=THREAD_HISTORY_LIMIT):
             role = "model" if i.author.bot else "user"
             history.append(Content(role=role, parts=[await parse_message(i)]))
 
         self.chats[thread.id] = self.client.aio.chats.create(
-            model=model, config=config, history=history
+            model=LLM_MODEL, config=config, history=history
         )
         return self.chats[thread.id]
 

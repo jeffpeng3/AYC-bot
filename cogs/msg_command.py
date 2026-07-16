@@ -21,30 +21,22 @@ from google.genai.types import (
     HarmCategory,
     HarmBlockThreshold,
 )
+from core.config import LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_OUTPUT_TOKENS
 
-model = "gemini-2.0-flash"
+MAD_DELAY = 30
+DELETE_AFTER = 1
+EMOJI_TRUE = ["🇹", "🇷", "🇺", "🇪"]
+
 config = GenerateContentConfig(
     system_instruction="請使用繁體中文回答",
     tools=[Tool(google_search=GoogleSearch())],
-    temperature=0.5,
-    max_output_tokens=900,
+    temperature=LLM_TEMPERATURE,
+    max_output_tokens=LLM_MAX_OUTPUT_TOKENS,
     safety_settings=[
-        SafetySetting(
-            category=HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold=HarmBlockThreshold.BLOCK_NONE,
-        ),
-        SafetySetting(
-            category=HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            threshold=HarmBlockThreshold.BLOCK_NONE,
-        ),
-        SafetySetting(
-            category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-            threshold=HarmBlockThreshold.BLOCK_NONE,
-        ),
-        SafetySetting(
-            category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            threshold=HarmBlockThreshold.BLOCK_NONE,
-        ),
+        SafetySetting(category=HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=HarmBlockThreshold.BLOCK_NONE),
+        SafetySetting(category=HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=HarmBlockThreshold.BLOCK_NONE),
+        SafetySetting(category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=HarmBlockThreshold.BLOCK_NONE),
+        SafetySetting(category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=HarmBlockThreshold.BLOCK_NONE),
     ],
 )
 
@@ -58,25 +50,24 @@ class msg_command(Cog):
     @default_permissions(manage_messages=True)
     async def mad(self, ctx: ApplicationContext, message: Message):
         await ctx.respond("即將在30秒後刪除訊息", ephemeral=True)
-        await sleep(30)
+        await sleep(MAD_DELAY)
         try:
             await message.delete()
-        except BaseException:
+        except Exception:
             pass
 
     @message_command(name="gemini")
     async def gemini(self, ctx: ApplicationContext, message: Message):
-        chat = self.client.aio.chats.create(model=model, config=config)
+        chat = self.client.aio.chats.create(model=LLM_MODEL, config=config)
         part = await parse_message(message)
         result = await chat.send_message(part)
         await message.reply(f"{result.text}",mention_author=False)
-        await ctx.respond("已生成", delete_after=1)
+        await ctx.respond("已生成", delete_after=DELETE_AFTER)
 
     @message_command(name="true")
     async def true_reaction(self, ctx: ApplicationContext, message: Message):
         await ctx.defer(ephemeral=True)
-        emoji = ["🇹", "🇷", "🇺", "🇪"]
-        for i in emoji:
+        for i in EMOJI_TRUE:
             await message.add_reaction(i)
         await ctx.delete()
 
