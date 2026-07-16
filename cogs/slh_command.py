@@ -1,3 +1,5 @@
+from json import dump
+from os import makedirs
 from discord import (
     ApplicationContext,
     AutocompleteContext,
@@ -79,6 +81,9 @@ class slh_command(Cog):
             rtc_region=VoiceRegion(region),
             reason=f"由 {ctx.interaction.user.display_name} 指定",
         )
+        makedirs("data", exist_ok=True)
+        with open("data/region.json", "w") as f:
+            dump({"last_region": region}, f)
         await ctx.respond(f"已將語音頻道地區更改為 {region}", ephemeral=True)
 
 

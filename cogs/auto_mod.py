@@ -1,3 +1,4 @@
+from json import load
 from discord import Member, Bot, VoiceState, VoiceRegion
 from discord.ext.commands import Cog
 from time import time_ns
@@ -6,6 +7,14 @@ from time import time_ns
 class auto_mod(Cog):
     def __init__(self, bot: Bot):
         self.bot: Bot = bot
+        self.last_region = self.load_region()
+
+    def load_region(self) -> str:
+        try:
+            with open("data/region.json") as f:
+                return load(f).get("last_region", "india")
+        except (FileNotFoundError, ValueError):
+            return "india"
 
     @Cog.listener("on_voice_state_update")
     async def on_voice(self, member: Member, before: VoiceState, after: VoiceState):
@@ -20,7 +29,7 @@ class auto_mod(Cog):
             for i in range(4):
                 name += s[int(code[i * 2 : 2 * (i + 1)], 2)]
             new_channel = await after.channel.clone(name=f"分流{name}", reason="分流")
-            await new_channel.edit(rtc_region=VoiceRegion.india, nsfw=True) # type: ignore
+            await new_channel.edit(rtc_region=VoiceRegion(self.last_region), nsfw=True) # type: ignore
             await member.move_to(new_channel)
 
         if before.channel:
