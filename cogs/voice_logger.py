@@ -1,3 +1,4 @@
+import logging
 from asyncio import create_task
 from discord import (
     AllowedMentions,
@@ -7,6 +8,8 @@ from discord import (
 )
 from discord.ext.commands import Cog
 from core.webhook_logger import WebhookLogger
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_AVATAR_URL = "https://www.siasat.com/wp-content/uploads/2021/05/Discord.jpg"
 
@@ -24,7 +27,7 @@ class voice_logger(WebhookLogger):
             if before.channel:
                 message += f'離開了 {before.channel.name}'
             else:
-                print('為啥這個不成立阿', before, after)
+                logger.warning("不明語音狀態更新: before=%s after=%s", before, after)
                 return
         elif not before.channel:
             message += f'加入了 {after.channel.name}'

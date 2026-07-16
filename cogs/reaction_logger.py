@@ -1,3 +1,4 @@
+import logging
 from asyncio import create_task
 from discord import (
     AllowedMentions,
@@ -6,6 +7,8 @@ from discord import (
 )
 from discord.ext.commands import Cog
 from core.webhook_logger import WebhookLogger
+
+logger = logging.getLogger(__name__)
 
 
 class reaction_logger(WebhookLogger):
@@ -16,7 +19,7 @@ class reaction_logger(WebhookLogger):
     async def on_raw_reaction_add(self, payload: RawReactionActionEvent):
         user = await self.bot.get_or_fetch_user(payload.user_id)
         if not user:
-            print("無法獲取user:", payload.user_id)
+            logger.warning("無法獲取user: %s", payload.user_id)
             return
         if user.bot:
             return
@@ -51,7 +54,7 @@ class reaction_logger(WebhookLogger):
     async def on_raw_reaction_remove(self, payload: RawReactionActionEvent):
         user = await self.bot.get_or_fetch_user(payload.user_id)
         if not user:
-            print("無法獲取user:", payload.user_id)
+            logger.warning("無法獲取user: %s", payload.user_id)
             return
         if user.bot:
             return

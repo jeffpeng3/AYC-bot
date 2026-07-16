@@ -1,7 +1,10 @@
+import logging
 from discord import ApplicationContext, HTTPException, Message, Bot
 from discord.ext.commands import Cog
 from discord.commands import SlashCommandGroup
 from core.config import runtime
+
+logger = logging.getLogger(__name__)
 
 
 class emoji(Cog):
@@ -18,7 +21,7 @@ class emoji(Cog):
             try:
                 await message.add_reaction(react)
             except HTTPException as e:
-                print(message.author.id, message.author.display_name, e)
+                logger.warning("無法對 %s(%s) 反應: %s", message.author.display_name, message.author.id, e)
 
     @emoji_command_group.command(name='query', description='查詢現在使用的表情')
     async def query(self, ctx: ApplicationContext) -> None:

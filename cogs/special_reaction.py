@@ -1,3 +1,4 @@
+import logging
 from asyncio import create_task
 from discord import (
     Message,
@@ -8,6 +9,8 @@ from discord import (
 )
 from discord.ext.commands import Cog
 from discord.abc import GuildChannel
+
+logger = logging.getLogger(__name__)
 
 JJ_USER_ID = 594546616107663530
 JJ_CHANNEL_ID = 973137438459437056
@@ -74,7 +77,7 @@ class special_reaction(Cog):
                         for i in chicken_str:
                             await reaction.message.add_reaction(emoji[int(i)])
         except Exception as e:
-            print(e)
+            logger.exception("special_reaction 錯誤: %s", e)
 
 
 def setup(bot: Bot):

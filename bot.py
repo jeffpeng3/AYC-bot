@@ -1,4 +1,13 @@
+import logging
 from os import getenv, listdir
+
+logger = logging.getLogger(__name__)
+logging.getLogger("discord").setLevel(logging.WARNING)
+logging.basicConfig(
+    level=getenv("LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 from discord.ext.commands import is_owner
 from discord.commands import option
 from discord import (
@@ -38,30 +47,20 @@ init_once = Event()
 async def on_ready():
     if init_once.is_set():
         return
-    print("-------------")
+    logger.info("-------------")
     if bot.user:
-        print("Logged in as :")
-        print(bot.user.name)
-        print(bot.user.id)
-        print("-------------")
-    # await bot.pool.create_node(
-    #     host="127.0.0.1",
-    #     port=2333,
-    #     label="MAIN",
-    #     password="yao_dcbot",
-    # )
-    # print(f"connect to node {bot.pool.nodes}")
-    # print("-------------")
+        logger.info("Logged in as : %s (%s)", bot.user.name, bot.user.id)
+        logger.info("-------------")
     for filename in listdir("cogs"):
         if filename.endswith(".py"):
-            print(f"loading {filename} ...")
+            logger.info("loading %s ...", filename)
             try:
                 bot.load_extension(f"cogs.{filename[:-3]}")
-                print(f"load {filename} done")
+                logger.info("load %s done", filename)
             except Exception as e:
-                print(f"Failed to load {filename}: {e}")
+                logger.error("Failed to load %s: %s", filename, e)
     await bot.sync_commands()
-    print("-------------")
+    logger.info("-------------")
     init_once.set()
 
 
