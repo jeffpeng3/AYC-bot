@@ -11,7 +11,7 @@ from discord import (
     default_permissions,
 )
 from asyncio import Event, new_event_loop
-from discord import Bot as _Bot
+from discord import Bot
 
 from core.shared import close_client
 
@@ -19,7 +19,7 @@ OWNER_ID = 551024169442344970
 GUILD_ID = 879748390290853918
 
 
-def command_prefix(_bot: _Bot | AutoShardedBot, _msg: Message) -> list[str]:
+def command_prefix(_bot: Bot | AutoShardedBot, _msg: Message) -> list[str]:
     return ["-"]
 
 
