@@ -4,7 +4,6 @@ from google.genai.types import (
     Blob,
 )
 from core.shared import get_client
-from typing import List, Tuple
 import re
 
 MAX_LENGTH = 2000
@@ -32,12 +31,12 @@ class MarkdownElement:
         self.end = end
         self.type = type
 
-def find_code_blocks(text: str) -> List[Tuple[int, int]]:
+def find_code_blocks(text: str) -> list[tuple[int, int]]:
     pattern = r'```[\s\S]*?```'
     return [(m.start(), m.end()) for m in re.finditer(pattern, text)]
 
 
-def find_inline_elements(text: str) -> List[MarkdownElement]:
+def find_inline_elements(text: str) -> list[MarkdownElement]:
     elements = []
     patterns = {
         'inline_code': r'`[^`]+`',
@@ -53,7 +52,7 @@ def find_inline_elements(text: str) -> List[MarkdownElement]:
     return sorted(elements, key=lambda x: x.start)
 
 
-async def split_markdown_text(text: str, max_length: int = MAX_LENGTH) -> List[str]:
+async def split_markdown_text(text: str, max_length: int = MAX_LENGTH) -> list[str]:
     if len(text) <= max_length:
         return [text]
 
