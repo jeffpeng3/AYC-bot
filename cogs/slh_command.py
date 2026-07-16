@@ -1,5 +1,3 @@
-from json import dump
-from os import makedirs
 from discord import (
     ApplicationContext,
     AutocompleteContext,
@@ -13,6 +11,10 @@ from discord import (
     slash_command,
 )
 from discord.ext.commands import Cog
+from core.config import runtime
+
+SNOWBALL_GUILD_ID = 624590181298601985
+SNOWBALL_CHANNEL_ID = 883718467562401812
 
 
 class slh_command(Cog):
@@ -22,11 +24,10 @@ class slh_command(Cog):
     @slash_command(
         name="snowball",
         description="立訓又吃到雪球了😭",
-        guild_ids=[624590181298601985],
-        # contexts=InteractionContextType.guild,
+        guild_ids=[SNOWBALL_GUILD_ID],
     )
     async def snowBall(self, ctx: ApplicationContext, cnt: int = 1):
-        channel: VoiceChannel = self.bot.get_channel(883718467562401812)  # type: ignore
+        channel: VoiceChannel = self.bot.get_channel(SNOWBALL_CHANNEL_ID)  # type: ignore
         rename = f"立訓吃了{int(channel.name[4:-3]) + cnt}顆雪球"
         await channel.edit(name=rename)
         await ctx.respond(f"立訓這次吃了{cnt}顆雪球", ephemeral=True)
@@ -68,22 +69,20 @@ class slh_command(Cog):
     @option(name="region", type=str, description="地區", autocomplete=list_other_region)
     async def region(self, ctx: ApplicationContext, region: str):
         if not ctx.interaction.user:
-            return []
+            return
         if not isinstance(ctx.interaction.user, Member):
-            return []
+            return
         user = ctx.interaction.user
         if not user.voice:
-            return []
+            return
         if not user.voice.channel:
-            return []
+            return
         targetChannel = user.voice.channel
         await targetChannel.edit(
             rtc_region=VoiceRegion(region),
             reason=f"由 {ctx.interaction.user.display_name} 指定",
         )
-        makedirs("data", exist_ok=True)
-        with open("data/region.json", "w") as f:
-            dump({"last_region": region}, f)
+        runtime.last_region = region
         await ctx.respond(f"已將語音頻道地區更改為 {region}", ephemeral=True)
 
 
