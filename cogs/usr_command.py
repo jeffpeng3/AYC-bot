@@ -9,6 +9,10 @@ from discord import (
 )
 from discord.ext.commands import Cog, has_guild_permissions
 
+MUTE_DURATION = 10
+GOTCHA_CHANNEL_ID = 1101866682470907944
+STEAL_CHANNEL_ID = 1113137310880510093
+
 
 class usr_command(Cog):
     def __init__(self, bot: Bot) -> None:
@@ -20,19 +24,19 @@ class usr_command(Cog):
     async def mute(self, ctx: ApplicationContext, member: Member):
         await member.edit(mute=True)
         await ctx.author.send("你得到了暫時的清靜")
-        await sleep(10)
+        await sleep(MUTE_DURATION)
         await member.edit(mute=False)
 
     @user_command(name="gotcha")
     async def gotcha(self, ctx: ApplicationContext, member: Member):
-        channel: VoiceChannel = self.bot.get_channel(1101866682470907944)  # type:ignore
+        channel: VoiceChannel = self.bot.get_channel(GOTCHA_CHANNEL_ID)  # type:ignore
         rename = f"收到了{int(channel.name[3:-5])+1}個檢舉回報"
         await channel.edit(name=rename)
         await ctx.respond("恭喜你檢舉成功", ephemeral=True)
 
     @user_command(name="steal")
     async def steal(self, ctx: ApplicationContext, member: Member):
-        channel: VoiceChannel = self.bot.get_channel(1113137310880510093)  # type:ignore
+        channel: VoiceChannel = self.bot.get_channel(STEAL_CHANNEL_ID)  # type:ignore
         rename = f"有人搶了{int(channel.name[4:-3])+1}個五殺"
         await channel.edit(name=rename)
         await ctx.respond("太難過ㄌ", ephemeral=True)

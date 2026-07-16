@@ -8,6 +8,14 @@ from discord import (
 )
 from discord.ext.commands import Cog
 from discord.abc import GuildChannel
+
+JJ_USER_ID = 594546616107663530
+JJ_CHANNEL_ID = 973137438459437056
+JJ_TRIGGER = "ㄐㄐ"
+ELECTRIC_TRIGGER = "電"
+ELECTRIC_EMOJI = "⚡"
+
+
 class special_reaction(Cog):
     def __init__(self, bot: Bot):
         self.bot: Bot = bot
@@ -15,21 +23,21 @@ class special_reaction(Cog):
     @Cog.listener("on_message")
     async def on_message(self, message: Message):
         if (
-            message.author.id == 594546616107663530
-            and "ㄐㄐ" in message.content
+            message.author.id == JJ_USER_ID
+            and JJ_TRIGGER in message.content
             and not self.bot.is_ws_ratelimited()
         ):
-            ch = self.bot.get_channel(973137438459437056)
+            ch = self.bot.get_channel(JJ_CHANNEL_ID)
             if isinstance(ch, VoiceChannel):
                 create_task(
                     ch.edit(
-                        name=f'ㄐㄐ女王有{int(ch.name[5:-3])+message.content.count("ㄐㄐ")}根ㄐㄐ'
+                        name=f'ㄐㄐ女王有{int(ch.name[5:-3])+message.content.count(JJ_TRIGGER)}根ㄐㄐ'
                     )
                 )
 
-        if "電" in message.content:
+        if ELECTRIC_TRIGGER in message.content:
             try:
-                await message.add_reaction("⚡")
+                await message.add_reaction(ELECTRIC_EMOJI)
             except Exception:
                 pass
 
@@ -39,7 +47,7 @@ class special_reaction(Cog):
             return
         try:
             match reaction.emoji:
-                case "🐔" if reaction.message.author.id == 594546616107663530:
+                case "🐔" if reaction.message.author.id == JJ_USER_ID:
                     await reaction.remove(user)
                     emoji = [
                         "0️⃣",
@@ -56,7 +64,7 @@ class special_reaction(Cog):
                     for i in reaction.message.reactions:
                         if i.emoji in emoji:
                             return
-                    chicken_channel = self.bot.get_channel(973137438459437056)
+                    chicken_channel = self.bot.get_channel(JJ_CHANNEL_ID)
                     if isinstance(chicken_channel, GuildChannel):
                         chicken_count = int(chicken_channel.name[5:-3])
                         chicken_str = str(chicken_count)
