@@ -1,4 +1,4 @@
-FROM python:3.14-slim AS builder
+FROM python:3.15-slim AS builder
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV UV_PYTHON_DOWNLOADS=0
 WORKDIR /app
@@ -13,7 +13,7 @@ COPY . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-editable
 
-FROM python:3.14-slim
+FROM python:3.15-slim
 WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY . /app
